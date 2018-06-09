@@ -64,6 +64,8 @@ public:
    */
   void UpdateEKF(const Eigen::VectorXd &z);
 
+private:
+    double PI;
 };
 
 #endif /* KALMAN_FILTER_H_ */
