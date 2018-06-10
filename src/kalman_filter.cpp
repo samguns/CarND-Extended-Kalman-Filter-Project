@@ -1,5 +1,6 @@
 #include "kalman_filter.h"
-
+#include <iostream>
+using namespace std;
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 
@@ -52,26 +53,29 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
      * update the state by using Extended Kalman Filter equations
      */
 
-    double px = x_[0];
-    double py = x_[1];
-    double vx = x_[2];
-    double vy = x_[3];
-    double c1 = px * px + py * py;
-    double rho;
-    double theta;
-    double ro_dot;
+    float px = x_[0];
+    float py = x_[1];
+    float vx = x_[2];
+    float vy = x_[3];
+    float c1 = px * px + py * py;
+    float rho;
+    float phi;
+    float ro_dot;
+    cout << __func__ << " c1 " << c1 << endl;
     if ((fabs(c1) < 0.0001) ||
         ((px == 0) && (py == 0))) {
         rho = 0;
-        theta = 0;
+        phi = 0;
         ro_dot = 0;
     } else {
-        rho = sqrt(px * px + py * py);
-        theta = atan2(py, px);
+        rho = sqrt(c1);
+        phi = atan2(py, px);
         ro_dot = px * vx + py * vy / rho;
     }
     VectorXd z_pred = VectorXd(3);
-    z_pred << rho, theta, ro_dot;
+    z_pred << rho, phi, ro_dot;
+    cout << "z_pred " << z_pred << endl;
+    cout << "z " << z << endl;
 
     VectorXd y = z - z_pred;
     while (y[1] < -PI) {
@@ -80,6 +84,7 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
     while (y[1] > PI) {
         y[1] -= 2 * PI;
     }
+    cout << "y " << y << endl;
     MatrixXd Ht = H_.transpose();
     MatrixXd S = H_ * P_ * Ht + R_;
     MatrixXd Si = S.inverse();

@@ -50,16 +50,52 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
     float c3 = (c1*c2);
 
     //check division by zero
-    if ((fabs(c1) < 0.0001) ||
-            ((px == 0) && (py == 0))){
+    if (fabs(c1) < 0.0001) {
         cout << "CalculateJacobian () - Error - Division by Zero" << endl;
-        return Hj;
+        return Hj.setZero();
+    }
+
+    cout << "px " << px << " py " << py << " vx " << vx << " vy " << vy << endl;
+    cout << "c1 " << fabs(c1) << " c2 " << c2 << " c3 " << c3 << endl;
+
+    if (isinf(c1) || isinf(c2) || isinf(c3) ||
+            isinf(px / c2) || isinf(py / c2) ||
+            isinf(-(py/c1)) || isinf(px / c1) ||
+            isinf(py*(vx*py - vy*px)/c3) ||
+            isinf(px*(px*vy - py*vx)/c3) ||
+            isinf(px/c2) || isinf(py/c2)) {
+        cout << __func__ << " - Error - Division by Zero" << endl;
+        return Hj.setZero();
     }
 
     //compute the Jacobian matrix
     Hj << (px/c2), (py/c2), 0, 0,
             -(py/c1), (px/c1), 0, 0,
             py*(vx*py - vy*px)/c3, px*(px*vy - py*vx)/c3, px/c2, py/c2;
+
+
+//
+//    float h00 = isinf(px / c2) ? 0 : (px / c2);
+//    h00 = isinf(c2) ? 0 : h00;
+//    float h01 = isinf(py / c2) ? 0 : (py / c2);
+//    h01 = isinf(c2) ? 0 : h01;
+//    float h10 = isinf(-(py/c1)) ? 0 : (-(py/c1));
+//    h10 = isinf(c1) ? 0 : h10;
+//    float h11 = isinf(px / c1) ? 0 : (px / c1);
+//    h11 = isinf(c1) ? 0 : h11;
+//    float h20 = isinf(py*(vx*py - vy*px)/c3) ? 0 : (py*(vx*py - vy*px)/c3);
+//    h20 = isinf(c3) ? 0 : h20;
+//    float h21 = isinf(px*(px*vy - py*vx)/c3) ? 0 : (px*(px*vy - py*vx)/c3);
+//    h21 = isinf(c3) ? 0 : h21;
+//    float h22 = isinf(px/c2) ? 0 : (px/c2);
+//    h22 = isinf(c2) ? 0 : h22;
+//    float h23 = isinf(py/c2) ? 0 : (py/c2);
+//    h23 = isinf(c2) ? 0 : h23;
+//
+//    //compute the Jacobian matrix
+//    Hj << h00, h01, 0, 0,
+//            h10, h11, 0, 0,
+//            h20, h21, h22, h23;
 
     return Hj;
 }
