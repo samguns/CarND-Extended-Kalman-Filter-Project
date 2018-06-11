@@ -66,6 +66,8 @@ public:
 
 private:
     double PI;
+
+    void _update(Eigen::VectorXd &y);
 };
 
 #endif /* KALMAN_FILTER_H_ */
